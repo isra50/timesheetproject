@@ -2,52 +2,48 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven-3.6.3'
-        jdk   'jdk17'
+        maven 'M2_HOME'
     }
 
     stages {
-        stage('Checkout') {
+        stage('MAVEN') {
             steps {
-                checkout scm
+                
+                sh "mvn -version"
             }
         }
+}
+Lamis
+pipeline {
 
-        stage('Info') {
-            steps {
-                sh 'java -version'
-                sh 'mvn -version'
-            }
-        }
+ agent any
 
-        stage('Build & Package') {
-            steps {
-                sh 'mvn -B clean package -DskipTests'
-            }
-        }
+ tools {jdk 'JAVA_HOME’, maven 'M2_HOME'}
 
-        stage('Test') {
-            steps {
-                sh 'mvn -B test || true'  // ne fait pas échouer si les tests plantent
-            }
-        }
+ stages {
 
-        stage('Archive') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true, allowEmptyArchive: false
-            }
-        }
-    }
+ stage('GIT') {
 
-    post {
-        always {
-            junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-        }
-        success {
-            echo 'Pipeline terminé avec succès !'
-        }
-        failure {
-            echo 'Échec du pipeline'
-        }
-    }
+           steps {
+
+               git branch: 'master',
+
+               url: ' https://github.com/hwafa/timesheetproject.git'
+
+          }
+
+     }
+
+ stage ('Compile Stage') {
+
+ steps {
+
+ sh 'mvn clean compile'
+
+ }
+
+ }
+
+ }
+
 }
